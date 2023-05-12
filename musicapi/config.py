@@ -9,4 +9,4 @@ class Config(object):
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///dev.db'
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///dev.sqlite'

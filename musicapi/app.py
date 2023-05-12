@@ -26,6 +26,9 @@ def create_app(config_class=DevelopmentConfig):
     except OSError:
         pass
     
+    #imports
+    from musicapi import models
+    
     #init apps
     db.init_app(app)
     migrate.init_app(app, db)
