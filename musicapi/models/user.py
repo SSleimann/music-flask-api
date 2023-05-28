@@ -14,3 +14,9 @@ class User(db.Model):
     def check_password(self, password) -> bool:
         return check_password_hash(self.password, password)
     
+    def __str__(self):
+        return self.username
+    
+    def __repr__(self):
+        return 'User id={0} username={1}' .format(self.id, self.username)
+    
