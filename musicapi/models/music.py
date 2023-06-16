@@ -1,10 +1,12 @@
 import sqlalchemy as sa
+from sqlalchemy.sql.expression import func, select 
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from musicapi.app import db
 
 artist_song_m2m = db.Table('artist_song',
-    sa.Column('artist_id', sa.Integer, sa.ForeignKey('artist.id')),
-    sa.Column('song_id', sa.Integer, sa.ForeignKey('song.id'))
+    sa.Column('artist_id', sa.Integer, sa.ForeignKey('artist.id'), primary_key=True),
+    sa.Column('song_id', sa.Integer, sa.ForeignKey('song.id'), primary_key=True)
 )
 
 class Artist(db.Model):
@@ -17,7 +19,7 @@ class Artist(db.Model):
         'Album', 
         backref='artist_albums', 
         lazy='dynamic',
-        cascade='all, delete-orphan'
+        cascade='all, delete, delete-orphan'
     )
     
     songs = db.relationship(
@@ -26,6 +28,14 @@ class Artist(db.Model):
         lazy='dynamic',
         secondary=artist_song_m2m
     )
+    
+    @hybrid_property
+    def count_albums(self):
+        return self.albums.count()
+    
+    @hybrid_property
+    def count_songs(self):
+        return self.songs.count()
     
     def __repr__(self):
         return f'<Artist {self.name}, id {self.id}>'
@@ -40,8 +50,13 @@ class Album(db.Model):
     songs = db.relationship(
         'Song',
         lazy='dynamic',
-        backref='album_songs'
+        backref='album_songs',
+        cascade='all, delete, delete-orphan'
     )
+    
+    @hybrid_property
+    def count_songs(self):
+        return self.songs.count()
     
     def __repr__(self):
         return f'<Album {self.name}, id {self.id}>'

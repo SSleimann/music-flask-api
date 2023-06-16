@@ -2,7 +2,7 @@ from flask import Blueprint
 from flask_restful import Api, Resource
 from flask_restful.reqparse import RequestParser
 from flask_restful.inputs import date
-from flask_jwt_extended import jwt_required, current_user
+from flask_jwt_extended import jwt_required
 
 from musicapi.app import db
 from musicapi.models import Artist
@@ -22,7 +22,7 @@ class ArtistResource(Resource):
         data = Artist.query.paginate(page=page, per_page=10).items
         dump = schema_artst.dump(data, many=True)
         
-        return dump
+        return dump, 200
     
     def post(self):
         data_parser = RequestParser()
@@ -47,6 +47,23 @@ class ArtistResource(Resource):
             'Artist': schema_artst.dump(artist)
         }
         
-        return data
+        return data, 201
+    
+class ArtistByIdResource(Resource):
+    def get(self, id):
+        artist = db.session.get(Artist, id)
+        
+        if artist is None:
+            return {'message': 'Artist not found!'}, 404
+        
+        return schema_artst.dump(artist), 200
+    
+    def delete(self, id):
+        Artist.query.filter(Artist.id == id).delete()
+        db.session.commit()
+            
+        return {'message': 'Artist have been deleted successfully'}, 200
+            
         
 api.add_resource(ArtistResource, '/artist')
+api.add_resource(ArtistByIdResource, '/artist/<int:id>')
