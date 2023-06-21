@@ -17,7 +17,7 @@ class AlbumSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Album
         load_instance = True
-        
+    
     id = ma.auto_field()
     artist_id = ma.auto_field()
     name = ma.auto_field()
@@ -26,7 +26,7 @@ class AlbumSchema(ma.SQLAlchemySchema):
     num_songs = fields.Method('count_songs')
     
     def count_songs(self, obj):
-        return obj.count_songs()
+        return obj.count_songs
     
 class ArtistSchema(ma.SQLAlchemySchema):
     class Meta:

@@ -1,13 +1,16 @@
 import os
 
 from flask import Flask
+from flask.logging import default_handler
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_restful import Api
 from flask_marshmallow import Marshmallow
 from flask_jwt_extended import JWTManager
 
-from musicapi.config import DevelopmentConfig
+import logging
+
+from musicapi.config import DevelopmentConfig, LOG_FILE, MIGRATION_DIR
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -28,20 +31,48 @@ def create_app(config_class=DevelopmentConfig):
     
     #imports
     from musicapi import models
-    from musicapi.resources import user_bp, music_bp
     
     #init apps
     init_apps(app, db)
     
     #load bps
-    app.register_blueprint(user_bp)
-    app.register_blueprint(music_bp)
+    load_blueprints(app)
+    
+    #configure logger
+    config_logger(app)
     
     return app
 
 def init_apps(app, db):
     db.init_app(app)
-    migrate.init_app(app, db)
+    migrate.init_app(app, db, directory=MIGRATION_DIR)
     api.init_app(app)
     ma.init_app(app)
     jwt.init_app(app)
+    
+def load_blueprints(app):
+    from musicapi.resources import user_bp
+    from musicapi.resources.music import music_bp
+    
+    app.register_blueprint(user_bp)
+    app.register_blueprint(music_bp)
+    
+def config_logger(app: Flask):
+    app.logger.removeHandler(default_handler)
+    
+    formatter = logging.Formatter(
+        "[%(asctime)s] - %(levelname)s in %(module)s - [%(name)s.%(funcName)s:%(lineno)d] - %(message)s"
+    )
+    
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(formatter)
+    stream_handler.setLevel(logging.DEBUG)
+    
+    file_handler = logging.FileHandler(LOG_FILE, 'a')
+    file_handler.setFormatter(formatter)
+    file_handler.setLevel(logging.DEBUG)
+    
+    app.logger.addHandler(stream_handler)
+    app.logger.addHandler(file_handler)
+    
+    app.logger.setLevel(logging.DEBUG)

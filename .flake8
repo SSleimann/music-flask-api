@@ -8,4 +8,4 @@ exclude =
     __pycache__,
     build,
     *.egg-info/
-    
+    logs/

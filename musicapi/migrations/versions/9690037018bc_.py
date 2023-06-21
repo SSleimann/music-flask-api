@@ -1,8 +1,8 @@
-"""Music and user migration.
+"""empty message
 
-Revision ID: ef61f8251633
+Revision ID: 9690037018bc
 Revises: 
-Create Date: 2023-06-08 11:48:15.737268
+Create Date: 2023-06-21 18:55:44.718206
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'ef61f8251633'
+revision = '9690037018bc'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -53,10 +53,11 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('artist_song',
-    sa.Column('artist_id', sa.Integer(), nullable=True),
-    sa.Column('song_id', sa.Integer(), nullable=True),
+    sa.Column('artist_id', sa.Integer(), nullable=False),
+    sa.Column('song_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['artist_id'], ['artist.id'], ),
-    sa.ForeignKeyConstraint(['song_id'], ['song.id'], )
+    sa.ForeignKeyConstraint(['song_id'], ['song.id'], ),
+    sa.PrimaryKeyConstraint('artist_id', 'song_id')
     )
     # ### end Alembic commands ###
 
