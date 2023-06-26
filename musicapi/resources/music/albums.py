@@ -40,6 +40,9 @@ class AlbumResource(Resource):
             args['release_date']
         )
         
+        if Artist.query.filter(Artist.id == artist_id).first() is None:
+            return {'message': 'Artist not found!'}, 404
+        
         album = Album(name=name, artist_id=artist_id, description=description, release_date=release_date)
         
         db.session.add(album)
@@ -53,3 +56,90 @@ class AlbumResource(Resource):
         }
         
         return data, 201
+    
+class AlbumByIdResource(Resource):
+    
+    def get(self, id):
+        album = db.session.get(Album, id)
+        
+        if album is None:
+            return {'message': 'Album not found!'}, 404
+        
+        current_app.logger.debug(f'Show album: {album}')
+    
+        return schema_album.dump(album), 200
+    
+    def delete(self, id):
+        album = db.session.get(Album, id)
+        
+        if album is None:
+            return {'message': 'Album not found!'}, 404
+        
+        db.session.delete(album)
+        db.session.commit()
+        
+        current_app.logger.debug(f'Album with id: {id} has been deleted')
+    
+        return {'message': 'Album have been deleted successfully'}, 200
+        
+    def put(self, id):
+        data_parser = RequestParser()
+        data_parser.add_argument('name', type=str, required=True, help='Name is required!')
+        data_parser.add_argument('artist_id', type=int, required=True, help='Artist ID is required!')
+        data_parser.add_argument('description', type=str, required=True, help='Description is required')
+        data_parser.add_argument('release_date', type=date, required=True, help='Release date is required!')
+        
+        args = data_parser.parse_args()
+        
+        album = db.session.get(Album, id)
+        
+        if album is None:
+            return {'message': 'Album not found!'}, 404
+        
+        if Artist.query.filter(Artist.id == args['artist_id']).first() is None:
+            return {'message': 'Artist not found!'}, 404
+        
+        for key, value in args.items():
+            setattr(album, key, value)
+            
+        db.session.commit()
+        
+        data = {
+            'message': 'The album was successfully updated!',
+            'Artist': schema_album.dump(album)
+        }
+        
+        current_app.logger.debug(f'Album with id: {id} has been updated')
+        return data, 200
+    
+    def patch(self, id):
+        data_parser = RequestParser()
+        data_parser.add_argument('name', type=str, help='Name is required!')
+        data_parser.add_argument('artist_id', type=int, help='Artist ID is required!')
+        data_parser.add_argument('description', type=str, help='Description is required')
+        data_parser.add_argument('release_date', type=date, help='Release date is required!')
+        
+        args = data_parser.parse_args()
+        
+        album = db.session.get(Album, id)
+        
+        if album is None:
+            return {'message': 'Album not found!'}, 404
+        
+        if args['artist_id'] is not None and Artist.query.filter(Artist.id == args['artist_id']).first() is None:
+            return {'message': 'Artist not found!'}, 404
+        
+        for key, value in args.items():
+            if value is not None:
+                setattr(album, key, value)
+            
+        db.session.commit()
+        
+        data = {
+            'message': 'The album was successfully updated!',
+            'Artist': schema_album.dump(album)
+        }
+        
+        current_app.logger.debug(f'Album with id: {id} has been updated')
+        return data, 200
+                

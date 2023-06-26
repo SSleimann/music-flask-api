@@ -63,7 +63,12 @@ class ArtistByIdResource(Resource):
         return schema_artst.dump(artist), 200
     
     def delete(self, id):
-        Artist.query.filter(Artist.id == id).delete()
+        artist = db.session.get(Artist, id)
+        
+        if artist is None:
+            return {'message': 'Artist not found!'}, 404
+        
+        db.session.delete(artist)
         db.session.commit()
         
         current_app.logger.debug(f'Artist with id: {id} has been deleted')
@@ -77,7 +82,7 @@ class ArtistByIdResource(Resource):
         parser.add_argument('year_of_birth', type=date, required=True, help='Year of birth is required and the format must be: YYYY-MM-DD') 
         args = parser.parse_args()
         
-        artist = Artist.query.filter(Artist.id == id).first()
+        artist = db.session.get(Artist, id)
         
         if artist is None:
             return {'message': 'Artist not found!'}, 404
@@ -103,7 +108,7 @@ class ArtistByIdResource(Resource):
         parser.add_argument('year_of_birth', type=date, help='Year of birth is required and the format must be: YYYY-MM-DD') 
         args = parser.parse_args()
         
-        artist = Artist.query.filter(Artist.id == id).first()
+        artist = db.session.get(Artist, id)
         
         if artist is None:
             return {'message': 'Artist not found!'}, 404

@@ -2,16 +2,6 @@ from musicapi.app import ma
 from musicapi.models import Album, Artist, Song
     
 from marshmallow import fields
-class SongSchema(ma.SQLAlchemySchema):
-    class Meta:
-        model = Song
-        load_instance = True
-        
-    id = ma.auto_field()
-    name = ma.auto_field()
-    album_id = ma.auto_field()
-    duration = ma.auto_field()
-    release_date = ma.auto_field()
     
 class AlbumSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -45,3 +35,16 @@ class ArtistSchema(ma.SQLAlchemySchema):
     
     def count_songs(self, obj):
         return obj.count_songs
+    
+class SongSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Song
+        load_instance = True
+        
+    id = ma.auto_field()
+    name = ma.auto_field()
+    album_id = ma.auto_field()
+    duration = ma.auto_field()
+    release_date = ma.auto_field()
+    artist_songs = ma.auto_field()
+    
