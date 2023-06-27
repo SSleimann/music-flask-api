@@ -46,5 +46,5 @@ class SongSchema(ma.SQLAlchemySchema):
     album_id = ma.auto_field()
     duration = ma.auto_field()
     release_date = ma.auto_field()
-    artist_songs = ma.auto_field()
+    artist_songs = fields.List(fields.Nested(ArtistSchema, only=('name',)))
     

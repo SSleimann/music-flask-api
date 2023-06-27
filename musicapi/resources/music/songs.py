@@ -5,13 +5,14 @@ from flask_restful.inputs import date
 from flask_jwt_extended import jwt_required
 
 from musicapi.app import db
+from musicapi.filters import SongFilter
 from musicapi.models import Song, Artist, Album
 from musicapi.schemas.music import SongSchema
 
 schema_song = SongSchema()
 
 
-class SongResource(Resource):
+class SongResource(Resource, SongFilter):
     
     
     def get(self):
@@ -20,6 +21,12 @@ class SongResource(Resource):
         args = page_parser.parse_args()
         
         page = 1 if args['page'] is None else args['page']
+        
+        if self.parsed_args['search'] is not None:
+            data = self.make_search_paginated(page=page)
+            dump = schema_song.dump(data, many=True)
+            return dump, 200 
+        
         data = Song.query.paginate(page=page, per_page=10).items
         
         current_app.logger.debug(f'Show songs. pag. {page}, quantity: {len(data)}')

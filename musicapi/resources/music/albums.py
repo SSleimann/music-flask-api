@@ -5,12 +5,13 @@ from flask_restful.inputs import date
 from flask_jwt_extended import jwt_required
 
 from musicapi.app import db
+from musicapi.filters import AlbumFilter
 from musicapi.models import Artist, Album
 from musicapi.schemas.music import AlbumSchema
 
 schema_album = AlbumSchema()
 
-class AlbumResource(Resource):
+class AlbumResource(Resource, AlbumFilter):
     
     
     def get(self):
@@ -19,6 +20,12 @@ class AlbumResource(Resource):
         args = page_parser.parse_args()
         
         page = 1 if args['page'] is None else args['page']
+        
+        if self.parsed_args['search'] is not None:
+            data = self.make_search_paginated(page=page)
+            dump = schema_album.dump(data, many=True)
+            return dump, 200 
+        
         data = Album.query.paginate(page=page, per_page=10).items
         
         current_app.logger.debug(f'Show albums. pag. {page}, quantity: {len(data)}')

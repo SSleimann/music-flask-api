@@ -6,17 +6,24 @@ from flask_jwt_extended import jwt_required
 
 from musicapi.app import db
 from musicapi.models import Artist
+from musicapi.filters import ArtistFilter
 from musicapi.schemas.music import ArtistSchema
 
 schema_artst = ArtistSchema()
 
-class ArtistResource(Resource):
+class ArtistResource(Resource, ArtistFilter):
     def get(self):
         page_parser = RequestParser()
         page_parser.add_argument('page', type=int, location='args')
         args = page_parser.parse_args()
         
         page = 1 if args['page'] is None else args['page']
+        
+        if self.parsed_args['search'] is not None:
+            data = self.make_search_paginated(page=page)
+            dump = schema_artst.dump(data, many=True)
+            return dump, 200 
+        
         data = Artist.query.paginate(page=page, per_page=10).items
         dump = schema_artst.dump(data, many=True)
         
