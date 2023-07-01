@@ -37,20 +37,14 @@ class AlbumResource(Resource, AlbumFilter):
         data_parser.add_argument('name', type=str, required=True, help='Name is required!')
         data_parser.add_argument('artist_id', type=int, required=True, help='Artist ID is required!')
         data_parser.add_argument('description', type=str, required=True, help='Description is required')
-        data_parser.add_argument('release_date', type=date, required=True, help='Release date is required!')
+        data_parser.add_argument('release_date', type=lambda x: str(date(x)), required=True, help='Release date is required!')
         
         args = data_parser.parse_args()
-        name, artist_id, description, release_date = (
-            args['name'], 
-            args['artist_id'], 
-            args['description'], 
-            args['release_date']
-        )
         
-        if Artist.query.filter(Artist.id == artist_id).first() is None:
+        if Artist.query.filter(Artist.id == args['artist_id']).first() is None:
             return {'message': 'Artist not found!'}, 404
         
-        album = Album(name=name, artist_id=artist_id, description=description, release_date=release_date)
+        album = schema_album.load(args)
         
         db.session.add(album)
         db.session.commit()

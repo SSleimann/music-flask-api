@@ -19,9 +19,6 @@ class BaseFilter(object):
         
         return self.model_filter
     
-    def make_search(self):
-        raise NotImplementedError
-    
     def make_search_paginated(self):
         raise NotImplementedError
     

@@ -7,6 +7,7 @@ class AlbumSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Album
         load_instance = True
+        ordered = True
     
     id = ma.auto_field()
     artist_id = ma.auto_field()
@@ -22,6 +23,7 @@ class ArtistSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Artist
         load_instance = True
+        ordered = True
     
     id = ma.auto_field()
     name = ma.auto_field()
@@ -40,6 +42,7 @@ class SongSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Song
         load_instance = True
+        ordered = True
         
     id = ma.auto_field()
     name = ma.auto_field()

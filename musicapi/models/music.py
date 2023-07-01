@@ -12,21 +12,22 @@ artist_song_m2m = db.Table('artist_song',
 class Artist(db.Model):
     id = sa.Column(sa.Integer, primary_key=True)
     name = sa.Column(sa.String(50), nullable=False)
-    description = sa.Column(sa.Text, nullable=True)
+    description = sa.Column(sa.Text, nullable=False)
     year_of_birth = sa.Column(sa.DateTime, nullable=False)
     
     albums = db.relationship(
         'Album', 
         backref='artist_albums', 
         lazy='dynamic',
-        cascade='all, delete, delete-orphan'
+        cascade='all, delete-orphan'
     )
     
     songs = db.relationship(
         'Song',
         backref='artist_songs',
         lazy='dynamic',
-        secondary=artist_song_m2m
+        secondary=artist_song_m2m,
+        cascade='all, delete'
     )
     
     @hybrid_property
@@ -44,14 +45,14 @@ class Album(db.Model):
     id = sa.Column(sa.Integer, primary_key=True)
     artist_id = sa.Column(sa.Integer, sa.ForeignKey('artist.id'), nullable=False)
     name = sa.Column(sa.String(20), nullable=False)
-    description = sa.Column(sa.Text, nullable=True)
+    description = sa.Column(sa.Text, nullable=False)
     release_date = sa.Column(sa.DateTime, nullable=False)
     
     songs = db.relationship(
         'Song',
         lazy='dynamic',
         backref='album_songs',
-        cascade='all, delete, delete-orphan'
+        cascade='all, delete-orphan'
     )
     
     @hybrid_property

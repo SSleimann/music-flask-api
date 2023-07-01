@@ -12,6 +12,8 @@ from musicapi.schemas.music import ArtistSchema
 schema_artst = ArtistSchema()
 
 class ArtistResource(Resource, ArtistFilter):
+    
+    
     def get(self):
         page_parser = RequestParser()
         page_parser.add_argument('page', type=int, location='args')
@@ -35,17 +37,11 @@ class ArtistResource(Resource, ArtistFilter):
         data_parser = RequestParser()
         data_parser.add_argument('name', type=str, required=True, help='Name is required!') 
         data_parser.add_argument('description', required=True, help='Description is required!', type=str) 
-        data_parser.add_argument('year_of_birth', type=date, required=True, help='Year of birth is required and the format must be: YYYY-MM-DD') 
+        data_parser.add_argument('year_of_birth', type=lambda x: str(date(x)), required=True, help='Year of birth is required and the format must be: YYYY-MM-DD') 
 
         args = data_parser.parse_args()
+        artist = schema_artst.load(args)
         
-        name, description, year_of_birth = (
-            args['name'],
-            'Without description!' if args['description'] is None else args['description'], 
-            args['year_of_birth']
-        )
-        
-        artist = Artist(name=name, description=description, year_of_birth=year_of_birth)
         db.session.add(artist)
         db.session.commit()
         
