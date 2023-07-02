@@ -2,11 +2,11 @@ from flask import current_app
 from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
 from flask_restful.inputs import date
-from flask_jwt_extended import jwt_required
 
 from musicapi.app import db
 from musicapi.filters import AlbumFilter
 from musicapi.models import Artist, Album
+from musicapi.exceptions import AlbumNotFoundException, ArtistNotFoundException
 from musicapi.schemas.music import AlbumSchema
 
 schema_album = AlbumSchema()
@@ -42,7 +42,7 @@ class AlbumResource(Resource, AlbumFilter):
         args = data_parser.parse_args()
         
         if Artist.query.filter(Artist.id == args['artist_id']).first() is None:
-            return {'message': 'Artist not found!'}, 404
+            raise ArtistNotFoundException
         
         album = schema_album.load(args)
         
@@ -64,7 +64,7 @@ class AlbumByIdResource(Resource):
         album = db.session.get(Album, id)
         
         if album is None:
-            return {'message': 'Album not found!'}, 404
+            raise AlbumNotFoundException
         
         current_app.logger.debug(f'Show album: {album}')
     
@@ -74,7 +74,7 @@ class AlbumByIdResource(Resource):
         album = db.session.get(Album, id)
         
         if album is None:
-            return {'message': 'Album not found!'}, 404
+            raise AlbumNotFoundException
         
         db.session.delete(album)
         db.session.commit()
@@ -95,10 +95,10 @@ class AlbumByIdResource(Resource):
         album = db.session.get(Album, id)
         
         if album is None:
-            return {'message': 'Album not found!'}, 404
+            raise AlbumNotFoundException
         
         if Artist.query.filter(Artist.id == args['artist_id']).first() is None:
-            return {'message': 'Artist not found!'}, 404
+            raise ArtistNotFoundException
         
         for key, value in args.items():
             setattr(album, key, value)
@@ -125,10 +125,10 @@ class AlbumByIdResource(Resource):
         album = db.session.get(Album, id)
         
         if album is None:
-            return {'message': 'Album not found!'}, 404
+            raise AlbumNotFoundException
         
         if args['artist_id'] is not None and Artist.query.filter(Artist.id == args['artist_id']).first() is None:
-            return {'message': 'Artist not found!'}, 404
+            raise ArtistNotFoundException
         
         for key, value in args.items():
             if value is not None:

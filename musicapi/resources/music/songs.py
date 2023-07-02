@@ -2,11 +2,11 @@ from flask import current_app
 from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
 from flask_restful.inputs import date
-from flask_jwt_extended import jwt_required
 
 from musicapi.app import db
 from musicapi.filters import SongFilter
 from musicapi.models import Song, Artist, Album
+from musicapi.exceptions import ArtistNotFoundException, AlbumNotFoundException, SongNotFoundException
 from musicapi.schemas.music import SongSchema
 
 schema_song = SongSchema()
@@ -45,12 +45,12 @@ class SongResource(Resource, SongFilter):
         artists_id = args.pop('artist_id')
         
         if Album.query.filter(Album.id == args['album_id']).first() is None:
-            return {'message': 'Album not found'}, 404
+            raise AlbumNotFoundException
         
         artists =  Artist.query.filter(Artist.id.in_(artists_id)).all()
         
         if not artist:
-            return {'message': 'Invalid artists!'}, 404
+            raise ArtistNotFoundException
         
         song = schema_song.load(args)
         
@@ -75,7 +75,7 @@ class SongByIdResource(Resource):
         song = db.session.get(Song, id)
         
         if song is None:
-            return {'message': 'Song not found'}, 404
+            raise SongNotFoundException
         
         current_app.logger.debug(f'Show song by id: {song}')
         
@@ -85,7 +85,7 @@ class SongByIdResource(Resource):
         song = db.session.get(Song, id)
         
         if song is None:
-            return {'message': 'Song not found'}, 404
+            raise SongNotFoundException
         
         db.session.delete(song)
         db.session.commit()
@@ -107,15 +107,15 @@ class SongByIdResource(Resource):
         artists_id = args.pop('artist_id')
         
         if song is None:
-            return {'message': 'Song not found'}, 404
+            raise SongNotFoundException
         
         if Album.query.filter(Album.id == args['album_id']).first() is None:
-            return {'message': 'Album not found'}, 404
+            raise AlbumNotFoundException
         
         artists_args = Artist.query.filter(Artist.id.in_(artists_id)).all()
         
         if not artists_args:
-            return {'message': 'Invalid artists!'}, 404
+            raise ArtistNotFoundException
         
         song.artist_songs = artists_args
         

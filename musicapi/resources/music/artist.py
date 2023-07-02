@@ -2,11 +2,11 @@ from flask import current_app
 from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
 from flask_restful.inputs import date
-from flask_jwt_extended import jwt_required
 
 from musicapi.app import db
 from musicapi.models import Artist
 from musicapi.filters import ArtistFilter
+from musicapi.exceptions import ArtistNotFoundException
 from musicapi.schemas.music import ArtistSchema
 
 schema_artst = ArtistSchema()
@@ -59,7 +59,7 @@ class ArtistByIdResource(Resource):
         artist = db.session.get(Artist, id)
         
         if artist is None:
-            return {'message': 'Artist not found!'}, 404
+            raise ArtistNotFoundException
         
         current_app.logger.debug(f'Show artist: {artist}')
         
@@ -69,7 +69,7 @@ class ArtistByIdResource(Resource):
         artist = db.session.get(Artist, id)
         
         if artist is None:
-            return {'message': 'Artist not found!'}, 404
+            raise ArtistNotFoundException
         
         db.session.delete(artist)
         db.session.commit()
@@ -88,7 +88,7 @@ class ArtistByIdResource(Resource):
         artist = db.session.get(Artist, id)
         
         if artist is None:
-            return {'message': 'Artist not found!'}, 404
+            raise ArtistNotFoundException
         
         for key, value in args.items():
             setattr(artist, key, value)
@@ -114,7 +114,7 @@ class ArtistByIdResource(Resource):
         artist = db.session.get(Artist, id)
         
         if artist is None:
-            return {'message': 'Artist not found!'}, 404
+            raise ArtistNotFoundException
         
         for key, value in args.items():
             if value is not None:

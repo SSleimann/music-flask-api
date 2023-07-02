@@ -5,9 +5,10 @@ from flask_restful import Api, Resource
 from flask_restful.reqparse import RequestParser
 from flask_jwt_extended import create_access_token, jwt_required, current_user
 
+from musicapi.app import db
+from musicapi.exceptions import UserNotFoundException
 from musicapi.schemas.user import UserSchema
 from musicapi.models.user import User
-from musicapi.app import db
 
 user_bp = Blueprint('user_blueprint', __name__, url_prefix='/user')
 api = Api(user_bp)
@@ -51,11 +52,11 @@ class UserLoginResource(Resource):
         
         try:
             user: User = User.query.filter_by(email=email).one()
-        except (MultipleResultsFound, NoResultFound):
-            return {'message': 'Invalid password or email!'}, 400
+        except (NoResultFound):
+            raise UserNotFoundException
         
         if not user.check_password(password):
-            return {'message': 'Invalid password or email!'}, 400
+            raise UserNotFoundException
         
         token = create_access_token(identity=user)
         
