@@ -17,12 +17,13 @@ class Config(object):
     TESTING = False
     SECRET_KEY = env.str('SECRET_KEY', default='secret')
     JWT_SECRET_KEY = env.str('JWT_SECRET_KEY', default='secret')
+    JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(hours=6)
+    JWT_TOKEN_LOCATION = ['headers']
 
 class DevelopmentConfig(Config):
     
     
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = env.str('DATABASE_URL', default='sqlite:///dev.sqlite')
-    JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(hours=1)
     
     

@@ -1,4 +1,4 @@
-from sqlalchemy.exc import IntegrityError, MultipleResultsFound, NoResultFound
+from sqlalchemy.exc import IntegrityError, NoResultFound
 
 from flask import Blueprint
 from flask_restful import Api, Resource

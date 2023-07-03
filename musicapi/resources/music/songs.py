@@ -39,7 +39,7 @@ class SongResource(Resource, SongFilter):
         data_parser.add_argument('artist_id', type=int, action='append', required=True, help='Artist ID is required, can be multiple! [a1, a2]')
         data_parser.add_argument('album_id', type=int, required=True, help='Album ID is required!')
         data_parser.add_argument('duration', type=int, required=True, help='Duration is required (in seconds)')
-        data_parser.add_argument('release_date', type=lambda x: str(date(x)), required=True, help='Release date is required!')
+        data_parser.add_argument('release_date', type=lambda x: str(date(x)), required=True, help='Release date is required (YYYY-MM-DD)!')
         
         args = data_parser.parse_args()
         artists_id = args.pop('artist_id')
@@ -49,7 +49,7 @@ class SongResource(Resource, SongFilter):
         
         artists =  Artist.query.filter(Artist.id.in_(artists_id)).all()
         
-        if not artist:
+        if not artists:
             raise ArtistNotFoundException
         
         song = schema_song.load(args)

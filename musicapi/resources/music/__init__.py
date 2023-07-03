@@ -7,7 +7,7 @@ from musicapi.resources.music.albums import AlbumResource, AlbumByIdResource
 from musicapi.resources.music.songs import SongResource, SongByIdResource
 
 music_bp = Blueprint('music_blueprint', __name__, url_prefix='/music')
-api = Api(music_bp )
+api = Api(music_bp, decorators=[jwt_required()])
 
 api.add_resource(ArtistResource, '/artist')
 api.add_resource(ArtistByIdResource, '/artist/<int:id>')
