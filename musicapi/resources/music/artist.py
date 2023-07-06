@@ -6,13 +6,16 @@ from flask_restful.inputs import date
 from musicapi.app import db
 from musicapi.models import Artist
 from musicapi.filters import ArtistFilter
+from musicapi.utils import admin_required
 from musicapi.exceptions import ArtistNotFoundException
 from musicapi.schemas.music import ArtistSchema
 
 schema_artst = ArtistSchema()
 
 class ArtistResource(Resource, ArtistFilter):
-    
+    method_decorators = {
+        'post': [admin_required]
+    }
     
     def get(self):
         page_parser = RequestParser()
@@ -55,6 +58,12 @@ class ArtistResource(Resource, ArtistFilter):
         return data, 201
     
 class ArtistByIdResource(Resource):
+    method_decorators = {
+        'delete': [admin_required],
+        'put': [admin_required],
+        'patch': [admin_required]
+    }
+    
     def get(self, id):
         artist = db.session.get(Artist, id)
         

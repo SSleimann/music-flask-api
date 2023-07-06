@@ -15,6 +15,8 @@ api = Api(user_bp)
 user_schema = UserSchema()
 
 class UserRegisterResource(Resource):
+    
+    
     def post(self):
         user_register_parser = RequestParser()
         user_register_parser.add_argument('username', type=str, required=True, case_sensitive=True, help='Username is required')
@@ -30,7 +32,7 @@ class UserRegisterResource(Resource):
             username=args['username'],
             email=args['email']
         )
-        user.set_paswword(args['password'])
+        user.set_password(args['password'])
         db.session.add(user)
         
         try:
@@ -42,6 +44,8 @@ class UserRegisterResource(Resource):
         return user_schema.dump(user), 201
     
 class UserLoginResource(Resource):
+    
+    
     def post(self):
         user_login_parser = RequestParser()
         user_login_parser.add_argument('email', type=str, required=True, help='Email is required')

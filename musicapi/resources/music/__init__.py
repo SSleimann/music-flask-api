@@ -2,6 +2,7 @@ from flask import Blueprint
 from flask_restful import Api
 from flask_jwt_extended import jwt_required
 
+from musicapi.utils import admin_required
 from musicapi.resources.music.artist import ArtistResource, ArtistByIdResource 
 from musicapi.resources.music.albums import AlbumResource, AlbumByIdResource
 from musicapi.resources.music.songs import SongResource, SongByIdResource

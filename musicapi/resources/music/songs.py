@@ -4,6 +4,7 @@ from flask_restful.reqparse import RequestParser
 from flask_restful.inputs import date
 
 from musicapi.app import db
+from musicapi.utils import admin_required
 from musicapi.filters import SongFilter
 from musicapi.models import Song, Artist, Album
 from musicapi.exceptions import ArtistNotFoundException, AlbumNotFoundException, SongNotFoundException
@@ -13,7 +14,9 @@ schema_song = SongSchema()
 
 
 class SongResource(Resource, SongFilter):
-
+    method_decorators = {
+        'post': [admin_required]
+    }
     
     def get(self):
         page_parser = RequestParser()
@@ -70,6 +73,10 @@ class SongResource(Resource, SongFilter):
         return data, 201
     
 class SongByIdResource(Resource):
+    method_decorators = {
+        'delete': [admin_required],
+        'put': [admin_required]
+    }
     
     def get(self, id):
         song = db.session.get(Song, id)

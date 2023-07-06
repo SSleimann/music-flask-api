@@ -10,7 +10,7 @@ from flask_jwt_extended import JWTManager
 
 import logging
 
-from musicapi.exceptions import ModelNotFoundException
+from musicapi.exceptions import ExceptionBase
 from musicapi.config import DevelopmentConfig, LOG_FILE, MIGRATION_DIR
 
 db = SQLAlchemy()
@@ -83,6 +83,6 @@ def config_logger(app):
 
 def load_error_handlers(app):
     
-    @app.errorhandler(ModelNotFoundException)
+    @app.errorhandler(ExceptionBase)
     def handle_model_not_found(e):
         return e.response()

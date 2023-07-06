@@ -1,5 +1,5 @@
 import sqlalchemy as sa
-from sqlalchemy.sql.expression import func, select 
+from sqlalchemy.sql.expression import func, select, case
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from musicapi.app import db
@@ -38,6 +38,10 @@ class Artist(db.Model):
     def count_songs(self):
         return self.songs.count()
     
+    @hybrid_property
+    def total_duration_songs(self):
+        return db.session.query(func.sum(Album.total_duration)).filter(Album.artist_id == self.id).scalar()
+    
     def __repr__(self):
         return f'<Artist {self.name}, id {self.id}>'
 
@@ -58,6 +62,20 @@ class Album(db.Model):
     @hybrid_property
     def count_songs(self):
         return self.songs.count()
+    
+    @hybrid_property
+    def total_duration(self):
+        return db.session.query(func.sum(Song.duration)).filter(Song.album_id == self.id).scalar()
+    
+    @total_duration.expression
+    def total_duration(self):
+        q = (
+            select(func.sum(Song.duration))
+            .where(Song.album_id == self.id)
+            .scalar_subquery()
+        )
+        
+        return q
     
     def __repr__(self):
         return f'<Album {self.name}, id {self.id}>'
