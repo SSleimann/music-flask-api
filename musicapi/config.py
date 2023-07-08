@@ -4,10 +4,9 @@ import datetime
 import environs
 
 env = environs.Env()
-env.read_env()
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-LOG_FILE = os.path.join(ROOT_DIR, "logs/api.log")
+LOG_DIR = os.path.join(ROOT_DIR, "logs/api.log")
 MIGRATION_DIR = os.path.join(ROOT_DIR, 'migrations')
 
 class Config(object):

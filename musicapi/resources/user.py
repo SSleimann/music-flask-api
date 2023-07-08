@@ -20,9 +20,9 @@ class UserRegisterResource(Resource):
     def post(self):
         user_register_parser = RequestParser()
         user_register_parser.add_argument('username', type=str, required=True, case_sensitive=True, help='Username is required')
+        user_register_parser.add_argument('email', type=str, required=True, help='Email is required')
         user_register_parser.add_argument('password', type=str, required=True, help='Password is required!')
         user_register_parser.add_argument('password_confirmation', type=str, required=True, help='Password confirmation is required')
-        user_register_parser.add_argument('email', type=str, required=True, help='Email is required')
         args = user_register_parser.parse_args()
         
         if args['password'] != args['password_confirmation']:

@@ -1,4 +1,3 @@
 SECRET_KEY=ultrasecretkey
 JWT_SECRET_KEY=jwtmegasecretkey
 DATABASE_URL=postgresql://postgres:ultrapassword@db:5432/musicdb
-DATABASE=postgres

@@ -11,7 +11,7 @@ from flask_jwt_extended import JWTManager
 import logging
 
 from musicapi.exceptions import ExceptionBase
-from musicapi.config import DevelopmentConfig, LOG_FILE, MIGRATION_DIR
+from musicapi.config import DevelopmentConfig, LOG_DIR, MIGRATION_DIR
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -24,9 +24,14 @@ def create_app(config_class=DevelopmentConfig):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
-    # ensure the instance folder exists
+    # ensure the instance folder exists and the log folder
     try:
         os.makedirs(app.instance_path)
+    except OSError:
+        pass
+    
+    try:
+        os.makedirs(LOG_DIR)
     except OSError:
         pass
     
@@ -72,7 +77,7 @@ def config_logger(app):
     stream_handler.setFormatter(formatter)
     stream_handler.setLevel(logging.DEBUG)
     
-    file_handler = logging.FileHandler(LOG_FILE, 'a')
+    file_handler = logging.FileHandler(LOG_DIR, 'a')
     file_handler.setFormatter(formatter)
     file_handler.setLevel(logging.DEBUG)
     

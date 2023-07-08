@@ -107,7 +107,7 @@ class SongByIdResource(Resource):
         data_parser.add_argument('artist_id', type=int, action='append', required=True, help='Artist ID is required, can be multiple! [a1, a2]')
         data_parser.add_argument('album_id', type=int, required=True, help='Album ID is required!')
         data_parser.add_argument('duration', type=int, required=True, help='Duration is required (in seconds)')
-        data_parser.add_argument('release_date', type=date, required=True, help='Release date is required!')
+        data_parser.add_argument('release_date', type=date, required=True, help='Release date is required (YYYY-MM-DD)!')
         
         args = data_parser.parse_args()
         song = db.session.get(Song, id)

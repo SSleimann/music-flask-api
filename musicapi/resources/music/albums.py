@@ -40,7 +40,7 @@ class AlbumResource(Resource, AlbumFilter):
         data_parser.add_argument('name', type=str, required=True, help='Name is required!')
         data_parser.add_argument('artist_id', type=int, required=True, help='Artist ID is required!')
         data_parser.add_argument('description', type=str, required=True, help='Description is required')
-        data_parser.add_argument('release_date', type=lambda x: str(date(x)), required=True, help='Release date is required!')
+        data_parser.add_argument('release_date', type=lambda x: str(date(x)), required=True, help='Release date is required (YYYY-MM-DD)!')
         
         args = data_parser.parse_args()
         
@@ -96,7 +96,7 @@ class AlbumByIdResource(Resource):
         data_parser.add_argument('name', type=str, required=True, help='Name is required!')
         data_parser.add_argument('artist_id', type=int, required=True, help='Artist ID is required!')
         data_parser.add_argument('description', type=str, required=True, help='Description is required')
-        data_parser.add_argument('release_date', type=date, required=True, help='Release date is required!')
+        data_parser.add_argument('release_date', type=date, required=True, help='Release date is required (YYYY-MM-DD)!')
         
         args = data_parser.parse_args()
         
@@ -126,7 +126,7 @@ class AlbumByIdResource(Resource):
         data_parser.add_argument('name', type=str, help='Name is required!')
         data_parser.add_argument('artist_id', type=int, help='Artist ID is required!')
         data_parser.add_argument('description', type=str, help='Description is required')
-        data_parser.add_argument('release_date', type=date, help='Release date is required!')
+        data_parser.add_argument('release_date', type=date, help='Release date is required (YYYY-MM-DD)!')
         
         args = data_parser.parse_args()
         
