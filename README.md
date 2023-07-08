@@ -51,7 +51,7 @@ This API allows you to search for information about artists, albums, and songs. 
 
 ### Built With
 
-This is a web application built using Flask, Python, and SQLAlchemy. By default, the application is configured to use PostgreSQL as the database backend. However, if you prefer to use a different database, you can easily switch to SQLite by updating the configuration settings in the config.py file.
+This is a web application built using Flask, Python, and SQLAlchemy. By default, the application is configured to use SQLite as the database backend. However, if you prefer to use a different database, you can easily switch to PostgreSQL by updating the configuration settings in the config.py file.
 
 * [![Python][python-shield]][python-url]
 * [![Flask][flask-shield]][flask-url]
