@@ -99,6 +99,18 @@ Before you start, you'll need to make sure you have the following installed:
    pip install .
    ```
 
+5. Assign the environment variables:
+
+   ```shell
+   export FLASK_APP=musicapi.app
+   ```
+
+6. Run the application:
+
+   ```shell
+   flask run
+   ```
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Installation with Docker
