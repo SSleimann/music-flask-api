@@ -1,17 +1,16 @@
 from flask import current_app
 from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
-from flask_restful.inputs import date
 
 from musicapi.app import db
 from musicapi.utils import admin_required
 from musicapi.filters import SongFilter
-from musicapi.models import Song, Artist, Album
-from musicapi.exceptions import ArtistNotFoundException, AlbumNotFoundException, SongNotFoundException
-from musicapi.schemas.music import SongSchema
+from musicapi.models import Song
+from musicapi.exceptions import SongNotFoundException
+from musicapi.schemas.music import SongSerializationSchema, SongDeserializationSchema
 
-schema_song = SongSchema()
-
+serialization_schema = SongSerializationSchema()
+deserialization_schema = SongDeserializationSchema()
 
 class SongResource(Resource, SongFilter):
     method_decorators = {
@@ -27,38 +26,26 @@ class SongResource(Resource, SongFilter):
         
         if self.parsed_args['search'] is not None:
             data = self.make_search_paginated(page=page)
-            dump = schema_song.dump(data, many=True)
+            dump = serialization_schema.dump(data, many=True)
             return dump, 200 
         
         data = Song.query.paginate(page=page, per_page=10).items
         
         current_app.logger.debug(f'Show songs. pag. {page}, quantity: {len(data)}')
         
-        return schema_song.dump(data, many=True), 200
+        return serialization_schema.dump(data, many=True), 200
     
     def post(self):
         data_parser = RequestParser()
         data_parser.add_argument('name', type=str, required=True, help='Name is required!')
-        data_parser.add_argument('artist_id', type=int, action='append', required=True, help='Artist ID is required, can be multiple! [a1, a2]')
+        data_parser.add_argument('artists', type=int, action='append', required=True, help='Artist ID is required, can be multiple! [a1, a2]')
         data_parser.add_argument('album_id', type=int, required=True, help='Album ID is required!')
         data_parser.add_argument('duration', type=int, required=True, help='Duration is required (in seconds)')
-        data_parser.add_argument('release_date', type=lambda x: str(date(x)), required=True, help='Release date is required (YYYY-MM-DD)!')
-        
+        data_parser.add_argument('release_date', type=str, required=True, help='Release date is required (YYYY-MM-DD)!')
         args = data_parser.parse_args()
-        artists_id = args.pop('artist_id')
         
-        if Album.query.filter(Album.id == args['album_id']).first() is None:
-            raise AlbumNotFoundException
-        
-        artists =  Artist.query.filter(Artist.id.in_(artists_id)).all()
-        
-        if not artists:
-            raise ArtistNotFoundException
-        
-        song = schema_song.load(args)
-        
-        for artist in artists:
-            artist.songs.append(song)
+        song_data = deserialization_schema.load(args)
+        song = Song(**song_data)
         
         db.session.add(song)
         db.session.commit()
@@ -67,7 +54,7 @@ class SongResource(Resource, SongFilter):
         
         data = {
             'message': 'Song created successfully',
-            'song': schema_song.dump(song)
+            'song': serialization_schema.dump(song)
         }
         
         return data, 201
@@ -79,17 +66,17 @@ class SongByIdResource(Resource):
     }
     
     def get(self, id):
-        song = db.session.get(Song, id)
+        song = Song.query.get(id)
         
         if song is None:
             raise SongNotFoundException
         
         current_app.logger.debug(f'Show song by id: {song}')
         
-        return schema_song.dump(song), 200
+        return serialization_schema.dump(song), 200
     
     def delete(self, id):
-        song = db.session.get(Song, id)
+        song = Song.query.get(id)
         
         if song is None:
             raise SongNotFoundException
@@ -104,36 +91,26 @@ class SongByIdResource(Resource):
     def put(self, id):
         data_parser = RequestParser()
         data_parser.add_argument('name', type=str, required=True, help='Name is required!')
-        data_parser.add_argument('artist_id', type=int, action='append', required=True, help='Artist ID is required, can be multiple! [a1, a2]')
+        data_parser.add_argument('artists', type=int, action='append', required=True, help='Artist ID is required, can be multiple! [a1, a2]')
         data_parser.add_argument('album_id', type=int, required=True, help='Album ID is required!')
         data_parser.add_argument('duration', type=int, required=True, help='Duration is required (in seconds)')
-        data_parser.add_argument('release_date', type=date, required=True, help='Release date is required (YYYY-MM-DD)!')
-        
+        data_parser.add_argument('release_date', type=str, required=True, help='Release date is required (YYYY-MM-DD)!')
         args = data_parser.parse_args()
-        song = db.session.get(Song, id)
-        artists_id = args.pop('artist_id')
+        
+        song_data = deserialization_schema.load(args)
+        song = Song.query.get(id)
         
         if song is None:
             raise SongNotFoundException
         
-        if Album.query.filter(Album.id == args['album_id']).first() is None:
-            raise AlbumNotFoundException
-        
-        artists_args = Artist.query.filter(Artist.id.in_(artists_id)).all()
-        
-        if not artists_args:
-            raise ArtistNotFoundException
-        
-        song.artist_songs = artists_args
-        
-        for k, v in args.items():
+        for k, v in song_data.items():
             setattr(song, k, v)
         
         db.session.commit()
         
         data = {
             'message': 'The song was successfully updated!',
-            'Artist': schema_song.dump(song)
+            'Artist': serialization_schema.dump(song)
         }
         
         current_app.logger.debug(f'Song with id: {id} has been updated')

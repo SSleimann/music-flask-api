@@ -51,7 +51,7 @@ class SongFilter(BaseFilter):
         q = model.query.filter(
             model.name.ilike(f'%{query}%') |
             model.album_songs.has(Album.name.ilike(f'%{query}%')) |
-            model.artist_songs.any(Artist.name.ilike(f'%{query}%'))
+            model.artists.any(Artist.name.ilike(f'%{query}%'))
         )
         
         return q.paginate(page=page, per_page=10).items

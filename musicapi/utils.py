@@ -11,3 +11,6 @@ def admin_required(func):
             raise UserNotAdminException
         return func(*args, **kwargs)
     return wrapper
+
+def remove_none_values(dict: dict) -> dict:
+    return { k:v for k, v in dict.items() if v is not None } 

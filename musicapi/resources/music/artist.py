@@ -1,16 +1,16 @@
 from flask import current_app
 from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
-from flask_restful.inputs import date
 
 from musicapi.app import db
 from musicapi.models import Artist
 from musicapi.filters import ArtistFilter
-from musicapi.utils import admin_required
+from musicapi.utils import admin_required, remove_none_values
 from musicapi.exceptions import ArtistNotFoundException
-from musicapi.schemas.music import ArtistSchema
+from musicapi.schemas.music import ArtistDeserializationSchema, ArtistSerializationSchema
 
-schema_artst = ArtistSchema()
+deserialization_schema = ArtistDeserializationSchema()
+serialization_schema = ArtistSerializationSchema()
 
 class ArtistResource(Resource, ArtistFilter):
     method_decorators = {
@@ -26,11 +26,11 @@ class ArtistResource(Resource, ArtistFilter):
         
         if self.parsed_args['search'] is not None:
             data = self.make_search_paginated(page=page)
-            dump = schema_artst.dump(data, many=True)
+            dump = serialization_schema.dump(data, many=True)
             return dump, 200 
         
         data = Artist.query.paginate(page=page, per_page=10).items
-        dump = schema_artst.dump(data, many=True)
+        dump = serialization_schema.dump(data, many=True)
         
         current_app.logger.debug(f'Show artists. pag. {page}, quantity: {len(data)}')
         
@@ -40,10 +40,11 @@ class ArtistResource(Resource, ArtistFilter):
         data_parser = RequestParser()
         data_parser.add_argument('name', type=str, required=True, help='Name is required!') 
         data_parser.add_argument('description', required=True, help='Description is required!', type=str) 
-        data_parser.add_argument('year_of_birth', type=lambda x: str(date(x)), required=True, help='Year of birth is required and the format must be: YYYY-MM-DD') 
-
+        data_parser.add_argument('year_of_birth', type=str, required=True, help='Year of birth is required and the format must be: YYYY-MM-DD') 
         args = data_parser.parse_args()
-        artist = schema_artst.load(args)
+        
+        artist_data = deserialization_schema.load(args)
+        artist = Artist(**artist_data)
         
         db.session.add(artist)
         db.session.commit()
@@ -52,7 +53,7 @@ class ArtistResource(Resource, ArtistFilter):
         
         data = {
             'message': 'Artist have been created successfully!',
-            'artist': schema_artst.dump(artist)
+            'artist': serialization_schema.dump(artist)
         }
         
         return data, 201
@@ -65,17 +66,17 @@ class ArtistByIdResource(Resource):
     }
     
     def get(self, id):
-        artist = db.session.get(Artist, id)
+        artist = Artist.query.get(id)
         
         if artist is None:
             raise ArtistNotFoundException
         
         current_app.logger.debug(f'Show artist: {artist}')
         
-        return schema_artst.dump(artist), 200
+        return serialization_schema.dump(artist), 200
     
     def delete(self, id):
-        artist = db.session.get(Artist, id)
+        artist = Artist.query.get(id)
         
         if artist is None:
             raise ArtistNotFoundException
@@ -91,22 +92,23 @@ class ArtistByIdResource(Resource):
         parser = RequestParser()
         parser.add_argument('name', type=str, required=True, help='Name is required!') 
         parser.add_argument('description', type=str, required=True, help='Description is required!') 
-        parser.add_argument('year_of_birth', type=date, required=True, help='Year of birth is required and the format must be: YYYY-MM-DD') 
+        parser.add_argument('year_of_birth', type=str, required=True, help='Year of birth is required and the format must be: YYYY-MM-DD') 
         args = parser.parse_args()
         
-        artist = db.session.get(Artist, id)
+        artist_data = deserialization_schema.load(args)
+        artist = Artist.query.get(id)
         
         if artist is None:
             raise ArtistNotFoundException
         
-        for key, value in args.items():
+        for key, value in artist_data.items():
             setattr(artist, key, value)
         
         db.session.commit()
         
         data = {
             'message': 'The artist was successfully updated!',
-            'Artist': schema_artst.dump(artist)
+            'Artist': serialization_schema.dump(artist)
         }
         
         current_app.logger.debug(f'Artist with id: {id} has been updated')
@@ -117,23 +119,24 @@ class ArtistByIdResource(Resource):
         parser = RequestParser()
         parser.add_argument('name', type=str, help='Name is required!') 
         parser.add_argument('description', type=str, help='Description is required!') 
-        parser.add_argument('year_of_birth', type=date, help='Year of birth is required and the format must be: YYYY-MM-DD') 
+        parser.add_argument('year_of_birth', type=str, help='Year of birth is required and the format must be: YYYY-MM-DD') 
         args = parser.parse_args()
+        args = remove_none_values(args)
         
-        artist = db.session.get(Artist, id)
+        artist_data = deserialization_schema.load(args, partial=True)
+        artist = Artist.query.get(id)
         
         if artist is None:
             raise ArtistNotFoundException
         
-        for key, value in args.items():
-            if value is not None:
-                setattr(artist, key, value)
+        for key, value in artist_data.items():
+            setattr(artist, key, value)
         
         db.session.commit()
         
         data = {
             'message': 'The artist was successfully updated!',
-            'Artist': schema_artst.dump(artist)
+            'Artist': serialization_schema.dump(artist)
         }
         
         current_app.logger.debug(f'Artist with id: {id} has been updated')

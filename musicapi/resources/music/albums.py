@@ -1,16 +1,16 @@
 from flask import current_app
 from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
-from flask_restful.inputs import date
 
 from musicapi.app import db
-from musicapi.utils import admin_required
+from musicapi.utils import admin_required, remove_none_values
 from musicapi.filters import AlbumFilter
-from musicapi.models import Artist, Album
-from musicapi.exceptions import AlbumNotFoundException, ArtistNotFoundException
-from musicapi.schemas.music import AlbumSchema
+from musicapi.models import Album
+from musicapi.exceptions import AlbumNotFoundException
+from musicapi.schemas.music import AlbumSerializationSchema, AlbumDeserializationSchema
 
-schema_album = AlbumSchema()
+deserialization_schema = AlbumDeserializationSchema()
+serialization_schema = AlbumSerializationSchema()
 
 class AlbumResource(Resource, AlbumFilter):
     method_decorators = {
@@ -26,28 +26,25 @@ class AlbumResource(Resource, AlbumFilter):
         
         if self.parsed_args['search'] is not None:
             data = self.make_search_paginated(page=page)
-            dump = schema_album.dump(data, many=True)
+            dump = serialization_schema.dump(data, many=True)
             return dump, 200 
         
         data = Album.query.paginate(page=page, per_page=10).items
         
         current_app.logger.debug(f'Show albums. pag. {page}, quantity: {len(data)}')
         
-        return schema_album.dump(data, many=True), 200
+        return serialization_schema.dump(data, many=True), 200
     
     def post(self):
         data_parser = RequestParser()
         data_parser.add_argument('name', type=str, required=True, help='Name is required!')
         data_parser.add_argument('artist_id', type=int, required=True, help='Artist ID is required!')
         data_parser.add_argument('description', type=str, required=True, help='Description is required')
-        data_parser.add_argument('release_date', type=lambda x: str(date(x)), required=True, help='Release date is required (YYYY-MM-DD)!')
-        
+        data_parser.add_argument('release_date', type=str, required=True, help='Release date is required (YYYY-MM-DD)!')
         args = data_parser.parse_args()
         
-        if Artist.query.filter(Artist.id == args['artist_id']).first() is None:
-            raise ArtistNotFoundException
-        
-        album = schema_album.load(args)
+        album_data = deserialization_schema.load(args)
+        album = Album(**album_data)
         
         db.session.add(album)
         db.session.commit()
@@ -56,7 +53,7 @@ class AlbumResource(Resource, AlbumFilter):
         
         data = {
             'message': 'Album have been created successfully!',
-            'album': schema_album.dump(album)
+            'album': serialization_schema.dump(album)
         }
         
         return data, 201
@@ -69,17 +66,17 @@ class AlbumByIdResource(Resource):
     }
     
     def get(self, id):
-        album = db.session.get(Album, id)
+        album = Album.query.get(id)
         
         if album is None:
             raise AlbumNotFoundException
         
         current_app.logger.debug(f'Show album: {album}')
     
-        return schema_album.dump(album), 200
+        return serialization_schema.dump(album), 200
     
     def delete(self, id):
-        album = db.session.get(Album, id)
+        album = Album.query.get(id)
         
         if album is None:
             raise AlbumNotFoundException
@@ -96,26 +93,23 @@ class AlbumByIdResource(Resource):
         data_parser.add_argument('name', type=str, required=True, help='Name is required!')
         data_parser.add_argument('artist_id', type=int, required=True, help='Artist ID is required!')
         data_parser.add_argument('description', type=str, required=True, help='Description is required')
-        data_parser.add_argument('release_date', type=date, required=True, help='Release date is required (YYYY-MM-DD)!')
-        
+        data_parser.add_argument('release_date', type=str, required=True, help='Release date is required (YYYY-MM-DD)!')
         args = data_parser.parse_args()
         
-        album = db.session.get(Album, id)
+        album_data = deserialization_schema.load(args)
+        album = Album.query.get(id)
         
         if album is None:
             raise AlbumNotFoundException
         
-        if Artist.query.filter(Artist.id == args['artist_id']).first() is None:
-            raise ArtistNotFoundException
-        
-        for key, value in args.items():
+        for key, value in album_data.items():
             setattr(album, key, value)
             
         db.session.commit()
         
         data = {
             'message': 'The album was successfully updated!',
-            'Artist': schema_album.dump(album)
+            'Album': serialization_schema.dump(album)
         }
         
         current_app.logger.debug(f'Album with id: {id} has been updated')
@@ -126,27 +120,24 @@ class AlbumByIdResource(Resource):
         data_parser.add_argument('name', type=str, help='Name is required!')
         data_parser.add_argument('artist_id', type=int, help='Artist ID is required!')
         data_parser.add_argument('description', type=str, help='Description is required')
-        data_parser.add_argument('release_date', type=date, help='Release date is required (YYYY-MM-DD)!')
-        
+        data_parser.add_argument('release_date', type=str, help='Release date is required (YYYY-MM-DD)!')
         args = data_parser.parse_args()
+        args = remove_none_values(args)
         
-        album = db.session.get(Album, id)
+        album_data = deserialization_schema.load(args, partial=True)
+        album = Album.query.get(id)
         
         if album is None:
             raise AlbumNotFoundException
         
-        if args['artist_id'] is not None and Artist.query.filter(Artist.id == args['artist_id']).first() is None:
-            raise ArtistNotFoundException
-        
-        for key, value in args.items():
-            if value is not None:
-                setattr(album, key, value)
+        for key, value in album_data.items():
+            setattr(album, key, value)
             
         db.session.commit()
         
         data = {
             'message': 'The album was successfully updated!',
-            'Artist': schema_album.dump(album)
+            'Album': serialization_schema.dump(album)
         }
         
         current_app.logger.debug(f'Album with id: {id} has been updated')
