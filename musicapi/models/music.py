@@ -1,5 +1,7 @@
 import sqlalchemy as sa
-from sqlalchemy.sql.expression import func, select, case
+from sqlalchemy.event import listens_for
+from sqlalchemy.orm import attributes
+from sqlalchemy.sql.expression import func, select
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from musicapi.app import db
@@ -26,8 +28,7 @@ class Artist(db.Model):
         'Song',
         back_populates="artists",
         lazy='dynamic',
-        secondary=artist_song_m2m,
-        cascade='all, delete-orphan'
+        secondary=artist_song_m2m
     )
     
     @hybrid_property
@@ -55,8 +56,7 @@ class Album(db.Model):
     songs = db.relationship(
         'Song',
         lazy='dynamic',
-        backref='album_songs',
-        cascade='all, delete-orphan'
+        backref='album_songs'
     )
     
     @hybrid_property
@@ -83,7 +83,7 @@ class Album(db.Model):
 class Song(db.Model):
     id = sa.Column(sa.Integer, primary_key=True)
     name = sa.Column(sa.String(20), nullable=False)
-    album_id = sa.Column(sa.Integer, sa.ForeignKey('album.id'), nullable=False)
+    album_id = sa.Column(sa.Integer, sa.ForeignKey('album.id'), nullable=True)
     duration = sa.Column(sa.Integer, nullable=False)
     release_date = sa.Column(sa.Date, nullable=False)
     
@@ -91,8 +91,26 @@ class Song(db.Model):
         'Artist',
         lazy='dynamic',
         secondary=artist_song_m2m,
-        back_populates="songs",
+        back_populates="songs"
     )
     
     def __repr__(self):
         return f'<Song {self.name}, id {self.id}>'
+    
+ctx = {}
+
+@listens_for(Artist, 'after_delete', raw=True)
+def artist_after_delete(mapper, connection, target):
+    session_id = target.session_id
+    ctx[(session_id, 'orphan')] = True
+
+@listens_for(Artist, 'after_update', raw=True)
+def artist_after_update(mapper, coneccion, target):
+    if target.attrs.songs.history.deleted:
+        ctx[(target.session_id, 'orphan')] = True
+    
+@listens_for(db.session, 'after_flush')
+def orphaned_artist_song(session, context):
+    if ctx.get((session.hash_key, 'orphan')):
+        session.query(Song).filter( ~(Song.artists.any()) ).delete(synchronize_session=False)
+        del ctx[(session.hash_key, 'orphan')]
