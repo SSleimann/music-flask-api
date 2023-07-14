@@ -7,17 +7,11 @@ class BaseFilter(object):
     model_filter = None
     
     def __init__(self):
-        self.parser = RequestParser()
-        self.parser.add_argument('search', type=str, help='Search query!', location='args')
-        
-    def _get_model(self) -> db.Model:
         if self.model_filter is None:
             raise ValueError("Model cannot be None")
-        
-        if not issubclass(self.model_filter, db.Model):
-            raise ValueError("Model filter must be a db.Model")
-        
-        return self.model_filter
+
+        self.parser = RequestParser()
+        self.parser.add_argument('search', type=str, help='Search query!', location='args')
     
     def make_search_paginated(self):
         raise NotImplementedError
@@ -31,7 +25,7 @@ class ArtistFilter(BaseFilter):
     
     def make_search_paginated(self, page: int = 1):
         query = self.parsed_args['search']
-        model = self._get_model()
+        model = self.model_filter
         
         q = model.query.filter(
             model.name.ilike(f'%{query}%')  |
@@ -46,7 +40,7 @@ class SongFilter(BaseFilter):
     
     def make_search_paginated(self, page):
         query = self.parsed_args['search']
-        model = self._get_model()
+        model = self.model_filter
         
         q = model.query.filter(
             model.name.ilike(f'%{query}%') |
@@ -61,7 +55,7 @@ class AlbumFilter(BaseFilter):
     
     def make_search_paginated(self, page):
         query = self.parsed_args['search']
-        model = self._get_model()
+        model = self.model_filter
         
         q = model.query.filter(
             model.name.ilike(f'%{query}%') |

@@ -31,7 +31,7 @@ class SongResource(Resource, SongFilter):
         
         data = Song.query.paginate(page=page, per_page=10).items
         
-        current_app.logger.debug(f'Show songs. pag. {page}, quantity: {len(data)}')
+        current_app.logger.info(f'Show songs. pag. {page}, quantity: {len(data)}')
         
         return serialization_schema.dump(data, many=True), 200
     
@@ -39,7 +39,7 @@ class SongResource(Resource, SongFilter):
         data_parser = RequestParser()
         data_parser.add_argument('name', type=str, required=True, help='Name is required!')
         data_parser.add_argument('artists', type=int, action='append', required=True, help='Artist ID is required, can be multiple! [a1, a2]')
-        data_parser.add_argument('album_id', type=int, required=True, help='Album ID is required!')
+        data_parser.add_argument('album_id', type=int, required=True, help='Album ID is required (can be null or int)!')
         data_parser.add_argument('duration', type=int, required=True, help='Duration is required (in seconds)')
         data_parser.add_argument('release_date', type=str, required=True, help='Release date is required (YYYY-MM-DD)!')
         args = data_parser.parse_args()
@@ -50,7 +50,7 @@ class SongResource(Resource, SongFilter):
         db.session.add(song)
         db.session.commit()
         
-        current_app.logger.debug(f'Added song: {song}')
+        current_app.logger.info(f'Added song: {song}')
         
         data = {
             'message': 'Song created successfully',
@@ -71,7 +71,7 @@ class SongByIdResource(Resource):
         if song is None:
             raise SongNotFoundException
         
-        current_app.logger.debug(f'Show song by id: {song}')
+        current_app.logger.info(f'Show song by id: {song}')
         
         return serialization_schema.dump(song), 200
     
@@ -84,7 +84,7 @@ class SongByIdResource(Resource):
         db.session.delete(song)
         db.session.commit()
         
-        current_app.logger.debug(f'Song with id: {id} has been deleted')
+        current_app.logger.info(f'Song with id: {id} has been deleted')
         
         return {'message': 'Song have been deleted successfully'}, 200
     
@@ -92,7 +92,7 @@ class SongByIdResource(Resource):
         data_parser = RequestParser()
         data_parser.add_argument('name', type=str, required=True, help='Name is required!')
         data_parser.add_argument('artists', type=int, action='append', required=True, help='Artist ID is required, can be multiple! [a1, a2]')
-        data_parser.add_argument('album_id', type=int, required=True, help='Album ID is required!')
+        data_parser.add_argument('album_id', type=int, required=True, help='Album ID is required (can be null or int)!')
         data_parser.add_argument('duration', type=int, required=True, help='Duration is required (in seconds)')
         data_parser.add_argument('release_date', type=str, required=True, help='Release date is required (YYYY-MM-DD)!')
         args = data_parser.parse_args()
@@ -113,7 +113,7 @@ class SongByIdResource(Resource):
             'Artist': serialization_schema.dump(song)
         }
         
-        current_app.logger.debug(f'Song with id: {id} has been updated')
+        current_app.logger.info(f'Song with id: {id} has been updated')
         
         return data, 200
     

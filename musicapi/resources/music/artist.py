@@ -32,7 +32,7 @@ class ArtistResource(Resource, ArtistFilter):
         data = Artist.query.paginate(page=page, per_page=10).items
         dump = serialization_schema.dump(data, many=True)
         
-        current_app.logger.debug(f'Show artists. pag. {page}, quantity: {len(data)}')
+        current_app.logger.info(f'Show artists. pag. {page}, quantity: {len(data)}')
         
         return dump, 200
     
@@ -49,7 +49,7 @@ class ArtistResource(Resource, ArtistFilter):
         db.session.add(artist)
         db.session.commit()
         
-        current_app.logger.debug(f'A new artist has been created: {artist}')
+        current_app.logger.info(f'A new artist has been created: {artist}')
         
         data = {
             'message': 'Artist have been created successfully!',
@@ -71,7 +71,7 @@ class ArtistByIdResource(Resource):
         if artist is None:
             raise ArtistNotFoundException
         
-        current_app.logger.debug(f'Show artist: {artist}')
+        current_app.logger.info(f'Show artist: {artist}')
         
         return serialization_schema.dump(artist), 200
     
@@ -84,7 +84,7 @@ class ArtistByIdResource(Resource):
         db.session.delete(artist)
         db.session.commit()
         
-        current_app.logger.debug(f'Artist with id: {id} has been deleted')
+        current_app.logger.info(f'Artist with id: {id} has been deleted')
         
         return {'message': 'Artist have been deleted successfully'}, 200
     
@@ -111,7 +111,7 @@ class ArtistByIdResource(Resource):
             'Artist': serialization_schema.dump(artist)
         }
         
-        current_app.logger.debug(f'Artist with id: {id} has been updated')
+        current_app.logger.info(f'Artist with id: {id} has been updated')
         
         return data, 200
     
@@ -139,7 +139,7 @@ class ArtistByIdResource(Resource):
             'Artist': serialization_schema.dump(artist)
         }
         
-        current_app.logger.debug(f'Artist with id: {id} has been updated')
+        current_app.logger.info(f'Artist with id: {id} has been updated')
         
         return data, 200
             

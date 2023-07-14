@@ -74,10 +74,11 @@ class SongDeserializationSchema(ma.SQLAlchemySchema):
     
     @validates('album_id')
     def validate_album_id(self, value):
-        album = Album.query.get(value)
-        
-        if album is None:
-            raise ValidationError('Album does not exist!')
+        if value is not None:
+            album = Album.query.get(value)
+            
+            if album is None:
+                raise ValidationError('Album does not exist!')
     
 class SongSerializationSchema(ma.SQLAlchemySchema):
     class Meta:

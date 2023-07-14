@@ -10,9 +10,6 @@ from flask_restful import Api
 from flask_marshmallow import Marshmallow
 from flask_jwt_extended import JWTManager
 
-from marshmallow import ValidationError
-
-from musicapi.exceptions import ExceptionBase
 from musicapi.config import DevelopmentConfig, LOG_DIR, MIGRATION_DIR
 
 db = SQLAlchemy()
@@ -89,6 +86,8 @@ def config_logger(app):
     app.logger.setLevel(logging.DEBUG)
 
 def load_error_handlers(app):
+    from marshmallow import ValidationError
+    from musicapi.exceptions import ExceptionBase
     
     @app.errorhandler(ExceptionBase)
     def handle_model_not_found(e):

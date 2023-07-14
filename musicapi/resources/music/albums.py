@@ -31,7 +31,7 @@ class AlbumResource(Resource, AlbumFilter):
         
         data = Album.query.paginate(page=page, per_page=10).items
         
-        current_app.logger.debug(f'Show albums. pag. {page}, quantity: {len(data)}')
+        current_app.logger.info(f'Show albums. pag. {page}, quantity: {len(data)}')
         
         return serialization_schema.dump(data, many=True), 200
     
@@ -49,7 +49,7 @@ class AlbumResource(Resource, AlbumFilter):
         db.session.add(album)
         db.session.commit()
         
-        current_app.logger.debug(f'A new album has been created: {album}')
+        current_app.logger.info(f'A new album has been created: {album}')
         
         data = {
             'message': 'Album have been created successfully!',
@@ -71,7 +71,7 @@ class AlbumByIdResource(Resource):
         if album is None:
             raise AlbumNotFoundException
         
-        current_app.logger.debug(f'Show album: {album}')
+        current_app.logger.info(f'Show album: {album}')
     
         return serialization_schema.dump(album), 200
     
@@ -84,7 +84,7 @@ class AlbumByIdResource(Resource):
         db.session.delete(album)
         db.session.commit()
         
-        current_app.logger.debug(f'Album with id: {id} has been deleted')
+        current_app.logger.info(f'Album with id: {id} has been deleted')
     
         return {'message': 'Album have been deleted successfully'}, 200
         
@@ -112,7 +112,7 @@ class AlbumByIdResource(Resource):
             'Album': serialization_schema.dump(album)
         }
         
-        current_app.logger.debug(f'Album with id: {id} has been updated')
+        current_app.logger.info(f'Album with id: {id} has been updated')
         return data, 200
     
     def patch(self, id):
@@ -140,6 +140,6 @@ class AlbumByIdResource(Resource):
             'Album': serialization_schema.dump(album)
         }
         
-        current_app.logger.debug(f'Album with id: {id} has been updated')
+        current_app.logger.info(f'Album with id: {id} has been updated')
         return data, 200
                 

@@ -1,53 +1,48 @@
+from musicapi.models import User, Artist, Album, Song
+
 class ExceptionBase(Exception):
     code = None
     message = None
     
-    def _get_code(self) -> int:
+    def __init__(self):
         if self.code is None:
             raise ValueError("Code cannot be None")
         
-        return self.code
-    
-    def _get_message(self):
         if self.message is None:
             raise ValueError("Message cannot be None")
-        
-        return self.message
     
     def response(self) -> dict:
         return {
-            "message": self._get_message()
-        }, self._get_code()
+            "message": self.message
+        }, self.code
     
 class ModelNotFoundException(ExceptionBase):
     code: int = 404
     message: str = '%s not found!'
-    model_name = None
+    model = None
     
     def __init__(self) -> None:
-        if self.model_name is None:
+        if self.model is None:
             raise ValueError("Model cannot be None")
     
-    def _get_message(self) -> str:
-        msg = super()._get_message()
+    def response(self) -> dict:
+        msg, code = super().response()
+        msg['message'] = msg['message'] % self.model.__name__
         
-        return msg % self.model_name  
-    
-    def __str__(self) -> str:
-        return self._get_message()
+        return msg, code
     
 class UserNotAdminException(ExceptionBase):
     code = 403
     message = 'User is not admin'
 
 class UserNotFoundException(ModelNotFoundException):
-    model_name = 'User'
+    model = User
 
 class ArtistNotFoundException(ModelNotFoundException):
-    model_name = 'Artist'
+    model= Artist
 
 class AlbumNotFoundException(ModelNotFoundException):
-    model_name = 'Album'
+    model = Album
     
 class SongNotFoundException(ModelNotFoundException):
-    model_name = 'Song'
+    model = Song
