@@ -1,4 +1,4 @@
-from sqlalchemy.exc import IntegrityError, NoResultFound
+from sqlalchemy.exc import IntegrityError
 
 from flask import Blueprint
 from flask_restful import Api, Resource
@@ -28,19 +28,18 @@ class UserRegisterResource(Resource):
         args = user_register_parser.parse_args()
         
         data = deserializer_schema.load(args)
-        password, _ = data.pop('password', None), data.pop('password_confirmation', None)
+        _ = data.pop('password_confirmation', None)
  
         user = User(
             **data
         )
-        user.set_password(password)
         db.session.add(user)
         
         try:
             db.session.commit()
         except IntegrityError:
             db.session.rollback()
-            return {'message': 'This user already exists!'}, 400
+            return {'message': 'This email or username already exists!'}, 400
         
         return serializer_schema.dump(user), 201
     

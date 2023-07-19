@@ -9,6 +9,11 @@ class User(db.Model):
     password = db.Column(db.String, nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
     
+    def __init__(self, username, email, password):
+        self.username = username
+        self.email = email
+        self.set_password(password)
+    
     def set_password(self, password) -> None:
         self.password = generate_password_hash(password)
     
