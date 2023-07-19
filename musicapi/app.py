@@ -95,4 +95,4 @@ def load_error_handlers(app):
     
     @app.errorhandler(ValidationError)
     def marshmallow_validation_error(e):
-        return  {'errors': e.messages}, 422
+        return  {'errors': e.messages}, 400

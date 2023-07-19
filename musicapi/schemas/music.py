@@ -1,9 +1,7 @@
-from sqlalchemy.exc import NoResultFound
-
 from musicapi.app import ma
 from musicapi.models import Album, Artist, Song
 
-from marshmallow import fields, validate, validates, ValidationError, post_load
+from marshmallow import fields, validate, validates, ValidationError
 
 class ArtistDeserializationSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -11,7 +9,7 @@ class ArtistDeserializationSchema(ma.SQLAlchemySchema):
         ordered = True
     
     id = ma.auto_field()
-    name = ma.auto_field( validate=validate.Length(min=3, max=20) )
+    name = ma.auto_field( validate=validate.Length(max=50) )
     description = ma.auto_field()
     year_of_birth = ma.auto_field()
 
@@ -34,7 +32,7 @@ class AlbumDeserializationSchema(ma.SQLAlchemySchema):
         ordered = True
     
     id = ma.auto_field()
-    name = ma.auto_field( validate=validate.Length(min=3, max=20) )
+    name = ma.auto_field( validate=validate.Length(max=20) )
     description = ma.auto_field()
     release_date = ma.auto_field()
     artist_id = ma.auto_field()
@@ -66,7 +64,7 @@ class SongDeserializationSchema(ma.SQLAlchemySchema):
         ordered = True
     
     id = ma.auto_field()
-    name = ma.auto_field( validate=validate.Length(min=3, max=40) )
+    name = ma.auto_field( validate=validate.Length(max=20) )
     duration = ma.auto_field()
     release_date = ma.auto_field()
     album_id = ma.auto_field()

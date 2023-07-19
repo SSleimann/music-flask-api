@@ -7,12 +7,14 @@ from flask_jwt_extended import create_access_token, jwt_required, current_user
 
 from musicapi.app import db
 from musicapi.exceptions import UserNotFoundException
-from musicapi.schemas.user import UserSchema
+from musicapi.schemas.user import UserSerializationSchema, UserDeserializationSchema
 from musicapi.models.user import User
 
 user_bp = Blueprint('user_blueprint', __name__, url_prefix='/user')
 api = Api(user_bp)
-user_schema = UserSchema()
+
+serializer_schema = UserSerializationSchema()
+deserializer_schema = UserDeserializationSchema()
 
 class UserRegisterResource(Resource):
     
@@ -25,14 +27,13 @@ class UserRegisterResource(Resource):
         user_register_parser.add_argument('password_confirmation', type=str, required=True, help='Password confirmation is required')
         args = user_register_parser.parse_args()
         
-        if args['password'] != args['password_confirmation']:
-            return {'message': 'Passwords do not match'}, 400
-        
+        data = deserializer_schema.load(args)
+        password, _ = data.pop('password', None), data.pop('password_confirmation', None)
+ 
         user = User(
-            username=args['username'],
-            email=args['email']
+            **data
         )
-        user.set_password(args['password'])
+        user.set_password(password)
         db.session.add(user)
         
         try:
@@ -41,7 +42,7 @@ class UserRegisterResource(Resource):
             db.session.rollback()
             return {'message': 'This user already exists!'}, 400
         
-        return user_schema.dump(user), 201
+        return serializer_schema.dump(user), 201
     
 class UserLoginResource(Resource):
     
@@ -53,10 +54,9 @@ class UserLoginResource(Resource):
         args = user_login_parser.parse_args()
         
         email, password = args['email'], args['password']
+        user = User.query.filter_by(email=email).first()
         
-        try:
-            user: User = User.query.filter_by(email=email).one()
-        except (NoResultFound):
+        if not user:
             raise UserNotFoundException
         
         if not user.check_password(password):
@@ -70,7 +70,7 @@ class UserProfileResource(Resource):
     method_decorators = [jwt_required()]
     
     def get(self):
-        data = user_schema.dump(current_user)
+        data = serializer_schema.dump(current_user)
         return data, 200
         
 api.add_resource(UserRegisterResource, '/register')
