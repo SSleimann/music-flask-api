@@ -66,6 +66,7 @@ def load_blueprints(app):
     app.register_blueprint(music_bp)
     
 def config_logger(app):
+    log_level = app.config['LOG_LEVEL']
     app.logger.removeHandler(default_handler)
     
     formatter = logging.Formatter(
@@ -74,7 +75,7 @@ def config_logger(app):
     
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(formatter)
-    stream_handler.setLevel(logging.DEBUG)
+    stream_handler.setLevel(log_level)
     
     file_handler = logging.FileHandler(LOG_DIR, 'a')
     file_handler.setFormatter(formatter)
@@ -83,7 +84,7 @@ def config_logger(app):
     app.logger.addHandler(stream_handler)
     app.logger.addHandler(file_handler)
     
-    app.logger.setLevel(logging.DEBUG)
+    app.logger.setLevel(log_level)
 
 def load_error_handlers(app):
     from marshmallow import ValidationError

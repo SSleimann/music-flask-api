@@ -7,7 +7,7 @@ from flask_jwt_extended import create_access_token, jwt_required, current_user
 
 from musicapi.app import db
 from musicapi.exceptions import UserNotFoundException
-from musicapi.schemas.user import UserSerializationSchema, UserDeserializationSchema
+from musicapi.schemas.user import UserSerializationSchema, UserDeserializationSchema, UserLoginSchema
 from musicapi.models.user import User
 
 user_bp = Blueprint('user_blueprint', __name__, url_prefix='/user')
@@ -52,13 +52,13 @@ class UserLoginResource(Resource):
         user_login_parser.add_argument('password', type=str, required=True, help='Password is required!')
         args = user_login_parser.parse_args()
         
-        email, password = args['email'], args['password']
-        user = User.query.filter_by(email=email).first()
+        data = UserLoginSchema().load(args)
+        user = User.query.filter_by(email=data['email']).first()
         
         if not user:
             raise UserNotFoundException
         
-        if not user.check_password(password):
+        if not user.check_password(data['password']):
             raise UserNotFoundException
         
         token = create_access_token(identity=user)

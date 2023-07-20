@@ -143,6 +143,7 @@ The following variables can be configured. These configuration variables are loc
 | --- | --- |
 | `SECRET_KEY` | The secret key of the application. |
 | `JWT_SECRET_KEY` | The secret key used to sign JWT tokens. |
+| `LOG_LEVEL` | Logging level of the application. |
 | `DATABASE_URL` | The URL of the PostgreSQL database used by the application. |
 | `POSTGRES_USER` | The username used to authenticate with the PostgreSQL database. |
 | `POSTGRES_PASSWORD` | The password used to authenticate with the PostgreSQL database. |
