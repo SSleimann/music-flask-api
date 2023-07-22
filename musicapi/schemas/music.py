@@ -1,4 +1,4 @@
-from musicapi.app import ma
+from musicapi.app import ma, db
 from musicapi.models import Album, Artist, Song
 
 from marshmallow import fields, validate, validates, ValidationError
@@ -39,7 +39,7 @@ class AlbumDeserializationSchema(ma.SQLAlchemySchema):
     
     @validates('artist_id')
     def validate_artist_id(self, value):
-        artist = Artist.query.get(value)
+        artist = db.session.get(Artist, value)
         
         if artist is None:
             raise ValidationError('Artist does not exist!')
@@ -73,7 +73,7 @@ class SongDeserializationSchema(ma.SQLAlchemySchema):
     @validates('album_id')
     def validate_album_id(self, value):
         if value is not None:
-            album = Album.query.get(value)
+            album = db.session.get(Album, value)
             
             if album is None:
                 raise ValidationError('Album does not exist!')

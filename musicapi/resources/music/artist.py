@@ -66,7 +66,7 @@ class ArtistByIdResource(Resource):
     }
     
     def get(self, id):
-        artist = Artist.query.get(id)
+        artist = db.session.get(Artist, id)
         
         if artist is None:
             raise ArtistNotFoundException
@@ -76,7 +76,7 @@ class ArtistByIdResource(Resource):
         return serialization_schema.dump(artist), 200
     
     def delete(self, id):
-        artist = Artist.query.get(id)
+        artist = db.session.get(Artist, id)
         
         if artist is None:
             raise ArtistNotFoundException
@@ -96,7 +96,7 @@ class ArtistByIdResource(Resource):
         args = parser.parse_args()
         
         artist_data = deserialization_schema.load(args)
-        artist = Artist.query.get(id)
+        artist = db.session.get(Artist, id)
         
         if artist is None:
             raise ArtistNotFoundException
@@ -124,7 +124,7 @@ class ArtistByIdResource(Resource):
         args = remove_none_values(args)
         
         artist_data = deserialization_schema.load(args, partial=True)
-        artist = Artist.query.get(id)
+        artist = db.session.get(Artist, id)
         
         if artist is None:
             raise ArtistNotFoundException

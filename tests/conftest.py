@@ -1,19 +1,50 @@
 import pytest
 
-from musicapi.app import create_app, db
+from musicapi.app import create_app
+from musicapi.app import db as _db
 from musicapi.config import TestingConfig
+from musicapi.models import User
 
 
-@pytest.fixture
-def client():
+@pytest.fixture(scope="session")
+def app():
     app = create_app(TestingConfig)
-    
-    with app.test_client() as client:
-        with app.app_context():
-            db.create_all()
-            
-            yield client
 
-            db.session.remove()
-            db.drop_all()
-        
+    testing_client = app.test_client()
+
+    ctx = app.app_context()
+    ctx.push()
+
+    yield testing_client
+
+    ctx.pop()
+
+
+@pytest.fixture(scope="session")
+def db(app):
+    _db.create_all()
+
+    user = User(username="XXXX", email="xxxx@xxxx.com", password="test")
+    _db.session.add(user)
+    _db.session.commit()
+
+    yield _db
+
+    _db.drop_all()
+
+
+@pytest.fixture(scope="function")
+def session(db):
+    conn = db.engine.connect()
+    trans = conn.begin()
+    
+    options = dict(bind=conn, binds={})
+    session = db._make_scoped_session(options)
+
+    db.session = session
+
+    yield session
+
+    trans.rollback()
+    conn.close()
+    session.remove()

@@ -3,7 +3,7 @@ from flask_jwt_extended import create_access_token
 
 from musicapi.models import User
 
-def test_register_user(client: FlaskClient):
+def test_register_user(app: FlaskClient, session):
     payload = {
         'username': 'testUser',
         'email': 'test@email.com',
@@ -11,7 +11,7 @@ def test_register_user(client: FlaskClient):
         'password_confirmation': 'helloPass'
     }
     
-    res = client.post(
+    res = app.post(
         '/user/register',
         json = payload
     )
@@ -21,13 +21,13 @@ def test_register_user(client: FlaskClient):
     assert res.json['email'] == payload['email']
     assert res.json['is_admin'] == False
     
-def test_login_user(client: FlaskClient, user):
+def test_login_user(app: FlaskClient, session):
     payload = {
         'email': 'xxxx@xxxx.com',
         'password': 'test'
     }
     
-    res = client.post(
+    res = app.post(
         '/user/login',
         json = payload
     )
@@ -35,10 +35,11 @@ def test_login_user(client: FlaskClient, user):
     assert res.status_code == 200
     assert 'token' in res.json
 
-def test_profile_user(client: FlaskClient, user: User):
+def test_profile_user(app: FlaskClient, session):
+    user = session.get(User, 1)
     access_token = create_access_token(identity=user)
     
-    res = client.get(
+    res = app.get(
         '/user/profile',
         headers={
             'Authorization': 'Bearer {}'.format(access_token)

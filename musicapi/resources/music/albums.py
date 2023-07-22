@@ -66,7 +66,7 @@ class AlbumByIdResource(Resource):
     }
     
     def get(self, id):
-        album = Album.query.get(id)
+        album = db.session.get(Album, id)
         
         if album is None:
             raise AlbumNotFoundException
@@ -76,7 +76,7 @@ class AlbumByIdResource(Resource):
         return serialization_schema.dump(album), 200
     
     def delete(self, id):
-        album = Album.query.get(id)
+        album = db.session.get(Album, id)
         
         if album is None:
             raise AlbumNotFoundException
@@ -97,7 +97,7 @@ class AlbumByIdResource(Resource):
         args = data_parser.parse_args()
         
         album_data = deserialization_schema.load(args)
-        album = Album.query.get(id)
+        album = db.session.get(Album, id)
         
         if album is None:
             raise AlbumNotFoundException
@@ -125,7 +125,7 @@ class AlbumByIdResource(Resource):
         args = remove_none_values(args)
         
         album_data = deserialization_schema.load(args, partial=True)
-        album = Album.query.get(id)
+        album = db.session.get(Album, id)
         
         if album is None:
             raise AlbumNotFoundException

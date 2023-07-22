@@ -66,7 +66,7 @@ class SongByIdResource(Resource):
     }
     
     def get(self, id):
-        song = Song.query.get(id)
+        song = db.session.get(Song, id)
         
         if song is None:
             raise SongNotFoundException
@@ -76,7 +76,7 @@ class SongByIdResource(Resource):
         return serialization_schema.dump(song), 200
     
     def delete(self, id):
-        song = Song.query.get(id)
+        song = db.session.get(Song, id)
         
         if song is None:
             raise SongNotFoundException
@@ -98,7 +98,7 @@ class SongByIdResource(Resource):
         args = data_parser.parse_args()
         
         song_data = deserialization_schema.load(args)
-        song = Song.query.get(id)
+        song = db.session.get(Song, id)
         
         if song is None:
             raise SongNotFoundException
