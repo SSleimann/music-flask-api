@@ -17,7 +17,7 @@ class DummyHelper:
         db.session.add_all(albums_obj)
         db.session.commit()
         
-        songs_des = SongDeserializationSchema().load(songs, many=True)
+        songs_des = SongDeserializationSchema().load(songs, many=True, session=db.session)
         songs_obj = [ Song(**data) for data in songs_des  ]
         
         db.session.add_all(songs_obj)

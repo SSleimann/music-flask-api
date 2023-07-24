@@ -22,12 +22,14 @@ def app():
 
 @pytest.fixture(scope="session")
 def db(app):
+    _db.app = app
     _db.create_all()
 
     user = User(username="XXXX", email="xxxx@xxxx.com", password="test")
+    user.set_admin()
     _db.session.add(user)
     _db.session.commit()
-
+    
     yield _db
 
     _db.drop_all()

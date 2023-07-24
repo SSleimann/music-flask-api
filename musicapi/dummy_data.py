@@ -65,7 +65,7 @@ songs = [
     "duration": 243,
     "album_id": 1,
     "release_date": "2018-05-23",
-    "artists": [1, 2]
+    "artists": [1 ]
   },
   {
     "name": "Young and Free",
