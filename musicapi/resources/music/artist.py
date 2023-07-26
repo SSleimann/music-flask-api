@@ -108,7 +108,7 @@ class ArtistByIdResource(Resource):
         
         data = {
             'message': 'The artist was successfully updated!',
-            'Artist': serialization_schema.dump(artist)
+            'artist': serialization_schema.dump(artist)
         }
         
         current_app.logger.info(f'Artist with id: {id} has been updated')
@@ -136,7 +136,7 @@ class ArtistByIdResource(Resource):
         
         data = {
             'message': 'The artist was successfully updated!',
-            'Artist': serialization_schema.dump(artist)
+            'artist': serialization_schema.dump(artist)
         }
         
         current_app.logger.info(f'Artist with id: {id} has been updated')

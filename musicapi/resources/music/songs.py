@@ -44,7 +44,7 @@ class SongResource(Resource, SongFilter):
         data_parser.add_argument('release_date', type=str, required=True, help='Release date is required (YYYY-MM-DD)!')
         args = data_parser.parse_args()
         
-        song_data = deserialization_schema.load(args)
+        song_data = deserialization_schema.load(args, session=db.session)
         song = Song(**song_data)
         
         db.session.add(song)
@@ -97,7 +97,7 @@ class SongByIdResource(Resource):
         data_parser.add_argument('release_date', type=str, required=True, help='Release date is required (YYYY-MM-DD)!')
         args = data_parser.parse_args()
         
-        song_data = deserialization_schema.load(args)
+        song_data = deserialization_schema.load(args, session=db.session)
         song = db.session.get(Song, id)
         
         if song is None:
@@ -110,7 +110,7 @@ class SongByIdResource(Resource):
         
         data = {
             'message': 'The song was successfully updated!',
-            'Artist': serialization_schema.dump(song)
+            'song': serialization_schema.dump(song)
         }
         
         current_app.logger.info(f'Song with id: {id} has been updated')

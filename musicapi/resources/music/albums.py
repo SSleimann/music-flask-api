@@ -109,7 +109,7 @@ class AlbumByIdResource(Resource):
         
         data = {
             'message': 'The album was successfully updated!',
-            'Album': serialization_schema.dump(album)
+            'album': serialization_schema.dump(album)
         }
         
         current_app.logger.info(f'Album with id: {id} has been updated')
@@ -137,7 +137,7 @@ class AlbumByIdResource(Resource):
         
         data = {
             'message': 'The album was successfully updated!',
-            'Album': serialization_schema.dump(album)
+            'album': serialization_schema.dump(album)
         }
         
         current_app.logger.info(f'Album with id: {id} has been updated')
