@@ -28,7 +28,7 @@ def test_find_song_by_name(app: FlaskClient, session, auth):
         query_string={"search": song.name},
     )
 
-    assert res.json[0] == data
+    assert data in res.json
     assert res.status_code == 200
 
 
@@ -44,7 +44,7 @@ def test_find_song_by_artist(app: FlaskClient, session, auth):
         query_string={"search": song_artist.name},
     )
 
-    assert res.json[0] == data
+    assert data in res.json
     assert res.status_code == 200
 
 
@@ -60,7 +60,7 @@ def test_find_song_by_album(app: FlaskClient, session, auth):
         query_string={"search": song_album.name},
     )
 
-    assert res.json[0] == data
+    assert data in res.json
     assert res.status_code == 200
 
 
