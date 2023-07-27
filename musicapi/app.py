@@ -75,11 +75,9 @@ def config_logger(app):
     
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(formatter)
-    stream_handler.setLevel(log_level)
     
     file_handler = logging.FileHandler(LOG_DIR, 'a')
     file_handler.setFormatter(formatter)
-    file_handler.setLevel(logging.DEBUG)
     
     app.logger.addHandler(stream_handler)
     app.logger.addHandler(file_handler)
