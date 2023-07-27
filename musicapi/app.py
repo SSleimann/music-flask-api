@@ -76,11 +76,13 @@ def config_logger(app):
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(formatter)
     
-    file_handler = logging.FileHandler(LOG_DIR, 'a')
-    file_handler.setFormatter(formatter)
+    
+    if not app.config["TESTING"]:
+        file_handler = logging.FileHandler(LOG_DIR, 'a')
+        file_handler.setFormatter(formatter)
+        app.logger.addHandler(file_handler)
     
     app.logger.addHandler(stream_handler)
-    app.logger.addHandler(file_handler)
     
     app.logger.setLevel(log_level)
 
