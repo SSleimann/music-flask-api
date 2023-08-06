@@ -23,7 +23,7 @@ def test_register_user(app: FlaskClient, session):
     assert res.status_code == 201
     assert res.json["username"] == payload["username"]
     assert res.json["email"] == payload["email"]
-    assert res.json["is_admin"] == False
+    assert res.json["admin"] == False
     assert user is not None
 
 
@@ -47,4 +47,4 @@ def test_profile_user(app: FlaskClient, session):
     assert res.status_code == 200
     assert res.json["username"] == user.username
     assert res.json["email"] == user.email
-    assert res.json["is_admin"] == user.is_admin
+    assert res.json["admin"] == user.is_admin
