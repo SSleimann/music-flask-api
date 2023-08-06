@@ -26,7 +26,7 @@ class UserSerializationSchema(ma.SQLAlchemySchema):
     id = ma.auto_field()
     username = ma.auto_field()
     email =ma. auto_field()
-    is_admin =ma. auto_field()
+    admin =ma. auto_field()
     
 class UserLoginSchema(ma.Schema):
     class Meta:

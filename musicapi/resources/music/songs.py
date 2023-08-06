@@ -2,7 +2,7 @@ from flask import current_app
 from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
 
-from musicapi.app import db
+from musicapi.app import db, cache
 from musicapi.utils import admin_required
 from musicapi.filters import SongFilter
 from musicapi.models import Song
@@ -14,7 +14,7 @@ deserialization_schema = SongDeserializationSchema()
 
 
 class SongResource(Resource, SongFilter):
-    method_decorators = {"post": [admin_required]}
+    method_decorators = {"post": [admin_required], "get": [cache.cached(query_string=True)]}
 
     def get(self):
         page_parser = RequestParser()
@@ -81,7 +81,11 @@ class SongResource(Resource, SongFilter):
 
 
 class SongByIdResource(Resource):
-    method_decorators = {"delete": [admin_required], "put": [admin_required]}
+    method_decorators = {
+        "delete": [admin_required],
+        "put": [admin_required],
+        "get": [cache.cached()],
+    }
 
     def get(self, id):
         song = db.session.get(Song, id)

@@ -7,7 +7,7 @@ class User(db.Model):
     username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
-    is_admin = db.Column(db.Boolean, default=False)
+    admin = db.Column(db.Boolean, default=False)
     
     def __init__(self, username, email, password):
         self.username = username
@@ -21,7 +21,11 @@ class User(db.Model):
         return check_password_hash(self.password, password)
     
     def set_admin(self) -> None:
-        self.is_admin = True
+        self.admin = True
+    
+    @property
+    def is_admin(self):
+        return self.admin
     
     def __str__(self):
         return self.username
