@@ -9,6 +9,7 @@ from flask_migrate import Migrate
 from flask_restful import Api
 from flask_marshmallow import Marshmallow
 from flask_jwt_extended import JWTManager
+from flask_caching import Cache
 
 from musicapi.config import DevelopmentConfig, LOG_DIR, MIGRATION_DIR
 
@@ -17,6 +18,7 @@ migrate = Migrate()
 api = Api()
 ma = Marshmallow()
 jwt = JWTManager()
+cache = Cache()
 
 def create_app(config_class=DevelopmentConfig):
     # create and configure the app
@@ -57,6 +59,7 @@ def init_apps(app, db):
     api.init_app(app)
     ma.init_app(app)
     jwt.init_app(app)
+    cache.init_app(app)
     
 def load_blueprints(app):
     from musicapi.resources import user_bp

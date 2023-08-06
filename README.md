@@ -46,13 +46,13 @@
 <!-- about the project-->
 ## About the project
 
-This API allows you to search for information about artists, albums, and songs. You can retrieve details such as the name, duration, description, and more for these entities. Additionally, this API provides a user authentication system using JWT for authorization.
+This API allows you to search for information about artists, albums, and songs. You can retrieve details such as the name, duration, description, and more for these entities. Additionally, this API provides a user authentication system using JWT for authorization and utilizes Redis cache to enhance performance and improve response times.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Built With
 
-This is a web application built using Flask, Python, and SQLAlchemy. By default, the application is configured to use SQLite as the database backend. However, if you prefer to use a different database, you can easily switch to PostgreSQL by updating the configuration settings in the config.py file.
+This is a web application built using Flask, Python, and SQLAlchemy. By default, the application is configured to use SQLite as the database backend. However, if you prefer to use a different database, you can easily switch to PostgreSQL by updating the configuration settings in the config.py file. Additionally, this application utilizes Redis for caching purposes, which helps improve performance and reduce the load on the database..
 
 * [![Python][python-shield]][python-url]
 * [![Flask][flask-shield]][flask-url]
@@ -67,8 +67,9 @@ This is a web application built using Flask, Python, and SQLAlchemy. By default,
 Before you start, you'll need to make sure you have the following installed:
 
 * Python (3.11 or higher)
-* PostgreSQL (10 or higher)
 * Pip
+* PostgreSQL (10 or higher)
+* Redis
 * Docker and Docker Compose (optional)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>

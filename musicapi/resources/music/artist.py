@@ -2,7 +2,7 @@ from flask import current_app
 from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
 
-from musicapi.app import db
+from musicapi.app import db, cache
 from musicapi.models import Artist
 from musicapi.filters import ArtistFilter
 from musicapi.utils import admin_required, remove_none_values
@@ -17,7 +17,10 @@ serialization_schema = ArtistSerializationSchema()
 
 
 class ArtistResource(Resource, ArtistFilter):
-    method_decorators = {"post": [admin_required]}
+    method_decorators = {
+        "post": [admin_required],
+        "get": [cache.cached(query_string=True)],
+    }
 
     def get(self):
         page_parser = RequestParser()
@@ -73,6 +76,7 @@ class ArtistByIdResource(Resource):
         "delete": [admin_required],
         "put": [admin_required],
         "patch": [admin_required],
+        "get": [cache.cached()],
     }
 
     def get(self, id):

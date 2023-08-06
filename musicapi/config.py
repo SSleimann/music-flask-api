@@ -2,7 +2,6 @@ import os
 
 import datetime
 import environs
-import logging
 
 env = environs.Env()
 
@@ -18,11 +17,14 @@ class Config(object):
     JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(hours=6)
     JWT_TOKEN_LOCATION = ['headers']
     LOG_LEVEL = env.log_level("LOG_LEVEL", default='DEBUG')
-
+    CACHE_TYPE = 'SimpleCache'
+    CACHE_DEFAULT_TIMEOUT=120
+    
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = env.str('DATABASE_URL', default='sqlite:///dev.sqlite')
     LOG_LEVEL = env.log_level("LOG_LEVEL", default='INFO')
+    CACHE_TYPE = 'RedisCache'
     
 class TestingConfig(Config):
     TESTING = True

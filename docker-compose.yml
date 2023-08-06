@@ -9,10 +9,10 @@ services:
       - 5000:5000
     env_file:
       - ./.envs/.local/.localenv
-    volumes:
-      - .:/app
     depends_on:
       - db
+      - redis
+    restart: always
 
   db:
     image: postgres:alpine3.18
@@ -26,6 +26,16 @@ services:
       - POSTGRES_PASSWORD=ultrapassword
       - POSTGRES_DB=musicdb
 
+  redis:
+    image: redis:7.0.12
+    command: redis-server --save 20 1 --loglevel warning
+    restart: always
+    ports:
+      - 6379:6379
+    volumes:
+      - redis:/var/lib/redis/data
+
 volumes:
   db:
+  redis:
 
